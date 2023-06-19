@@ -1,25 +1,61 @@
-import logo from './logo.svg';
-import './App.css';
+import React from 'react';
+import { connect } from 'react-redux';
+import { addTodo, deleteTodo } from './redux/action';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+class TodoList extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      text: '',
+    };
+  }
+
+  handleChange = (e) => {
+    this.setState({ text: e.target.value });
+  };
+
+  handleSubmit = (e) => {
+    e.preventDefault();
+    if (this.state.text.trim() !== '') {
+      this.props.addTodo(this.state.text);
+      this.setState({ text: '' });
+    }
+  };
+
+  handleDelete = (id) => {
+    this.props.deleteTodo(id);
+  };
+
+  render() {
+    return (
+      <div>
+        <h1>Todo App</h1>
+        <form onSubmit={this.handleSubmit}>
+          <input
+            type="text"
+            value={this.state.text}
+            onChange={this.handleChange}
+            placeholder="Enter a task"
+          />
+          <button type="submit">Add</button>
+        </form>
+        <ul>
+          {this.props.todos.map((todo) => (
+            <li key={todo.id}>
+              {todo.text}
+              <button onClick={() => this.handleDelete(todo.id)}>Delete</button>
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+  }
 }
 
-export default App;
+const mapStateToProps = (state) => {
+  return {
+    todos: state.todos,
+  };
+};
+
+export default connect(mapStateToProps, { addTodo, deleteTodo })(TodoList);
